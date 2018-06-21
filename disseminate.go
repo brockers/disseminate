@@ -1,50 +1,62 @@
 package main
 
-import "os"
+// import "os"
 import "flag"
 // import "io/ioutil"
 import "os/exec"
 // import "strings"
 import "fmt"
-import	"github.com/brockers/gitlogutil"
+import "regexp"
+import "strings"
+// import "github.com/brockers/gitlogutil"
+// import "github.com/davecgh/go-spew/spew"
+import "strconv"
 
 func main(){
 
-	wordPtr := flag.String("filter", "merge", "a string")
+	// var number string
+
+	var authTag = regexp.MustCompile(`Author: .*\n`)
+	var dateTag = regexp.MustCompile(`Date: .*\n`)
+	var commTag = regexp.MustCompile(`commit [a-z0-9]*\n`)
+	var message string
+	// wordPtr := flag.String("filter", "merge", "a string")
 	numbPtr := flag.Int("count", 1, "an int")
 
 	flag.Parse()
+	count := *numbPtr
 
-	message := "Revese argument example"
+	// message := "Revese argument example"
 	cmdmsg := "bash"
-	gitmsg := "-c git log"
+	s := []string{ "git log -n", strconv.Itoa(count), "--grep merge" }
+	gitmsg := strings.Join(s, "  ")
+	// number = "1"
 
-	fmt.Println("PATH: ", os.Getenv("PATH"))
-	fmt.Println(message, gitlogutil.Reverse(message))
-	fmt.Println("filter: ", *wordPtr)
-	fmt.Println("count: ", *numbPtr)
-	fmt.Println("arguments: ", flag.Args())
+	// fmt.Println("PATH: ", os.Getenv("PATH"))
+	// fmt.Println(message, gitlogutil.Reverse(message))
+	// number = strconv.Itoa(*numbPtr)
+	// fmt.Println("filter: ", *wordPtr)
+	// fmt.Println("count: ", number)
+	// fmt.Println("arguments: ", flag.Args())
 	// , gitlogutil.Reverse(strings.Join(argsWithProg) ))
 	// --merges
-	if wordPtr != nil {
-		fmt.Println(cmdmsg, gitmsg, "-n", *numbPtr, "--grep", string(*wordPtr))
-		gitlogCmd := exec.Command(cmdmsg, gitmsg, "-n", string(*numbPtr), "--grep", string(*wordPtr))
-		gitlogOut, err := gitlogCmd.Output()
+	// if wordPtr != nil {
+	gitlogCmd := exec.Command(cmdmsg, "-c", gitmsg)
+	gitlogOut, err := gitlogCmd.CombinedOutput()
 
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(string(gitlogOut))
+	if err != nil {
+		// log := spew.Sdump(gitlogCmd)
+		// fmt.Println("ERROR:", log)
+		fmt.Println("ERROR", gitlogOut)
+		panic(err)
 	} else {
-		gitlogCmd := exec.Command(cmdmsg, gitmsg, "-n", string(*numbPtr))
-		gitlogOut, err := gitlogCmd.Output()
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(string(gitlogOut))
+		message = string(gitlogOut)
 	}
 
+  message = authTag.ReplaceAllString(message, "")
+  message = dateTag.ReplaceAllString(message, "")
+  message = commTag.ReplaceAllString(message, "")
+  message = strings.TrimSpace(message)
 
+	fmt.Println(message)
 }
