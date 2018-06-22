@@ -1,6 +1,6 @@
 package main
 
-// import "os"
+import "os"
 import "flag"
 // import "io/ioutil"
 import "os/exec"
@@ -30,6 +30,8 @@ func main(){
 	var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 	var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 
+	// Less simpler printing
+	p := fmt.Println
 	// wordPtr := flag.String("filter", "merge", "a string")
 	numbPtr := flag.Int("count", 1, "An integer identifying the number of previous commits to check.")
 	flag.Parse()
@@ -42,15 +44,16 @@ func main(){
 
 	if err != nil {
 		// log := spew.Sdump(gitlogCmd)
-		// fmt.Println("ERROR:", log)
-		fmt.Println("ERROR", gitlogOut)
+		// p("ERROR:", log)
+		p("ERROR", gitlogOut)
 		panic(err)
 	}
 
 	message = string(gitlogOut)
 	// First test is if the most recent update actually has a merge message
 	if message == "" {
-		fmt.Println("No message was obtained from git log")
+		p("ERROR: No message was obtained from git log")
+		os.Exit(1)
 	}
 
 	hash = commTag.FindStringSubmatch(message)
@@ -58,20 +61,21 @@ func main(){
 
 	// Store the message as a hash document
 	if hash[1] == "" {
-		fmt.Println(message)
+		p(message)
 		panic("Was not able to get the hash value for the git commit message. ")
 	}
 
 	// Store the datestamp
 	if time[1] == "" {
-		fmt.Println(message)
+		p(message)
 		panic("Was not able to get the date/time value for the git commit message. ")
 	}
 
 	is_merge := mer1Tag.MatchString(message)
 
 	if ! is_merge {
-		fmt.Println("Last commit was not a merge")
+		p("ERROR: Last commit was not a merge")
+		os.Exit(1)
 	} else {
 
 		// Now we remove the author, date, and commit from the message
@@ -83,16 +87,17 @@ func main(){
 		message = strings.TrimSpace(message)
 
 		if message == "" {
-			panic("Commit message is empty.")
+			p("ERROR: Commit message is empty.")
+			os.Exit(1)
 		} else  {
-			// fmt.Println("SUCCESS:", hash[1])
-			// fmt.Println(message)
+			// p("SUCCESS:", hash[1])
+			// p(message)
 			res := &response{
 				Commit: hash[1],
 				Date: time[1],
 				Message: message}
 			resJson, _ := json.Marshal(res)
-			fmt.Println(string(resJson))
+			p(string(resJson))
 		}
 	}
 }
