@@ -8,22 +8,30 @@ import "fmt"
 import "regexp"
 import "strings"
 import "strconv"
+import "encoding/json"
+
+type response struct {
+		Commit  string `json:"commit"`
+		Message string `json:"message"`
+		Date    string `json:"timestamp"`
+}
 
 func main(){
 
 	// var number string
 	var message string
 	var hash []string
+	var time []string
 
 	// Regular Expression filters
 	var authTag = regexp.MustCompile(`Author: .*\n`)
-	var dateTag = regexp.MustCompile(`Date: .*\n`)
+	var dateTag = regexp.MustCompile(`Date:\s+(.*)\n`)
 	var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
 	var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 	var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 
 	// wordPtr := flag.String("filter", "merge", "a string")
-	numbPtr := flag.Int("count", 1, "an int")
+	numbPtr := flag.Int("count", 1, "An integer identifying the number of previous commits to check.")
 	flag.Parse()
 
 	// exec.Command requires a single string for third arg.  Combine strings
@@ -46,12 +54,19 @@ func main(){
 	}
 
 	hash = commTag.FindStringSubmatch(message)
+	time = dateTag.FindStringSubmatch(message)
+
 	// Store the message as a hash document
 	if hash[1] == "" {
 		fmt.Println(message)
 		panic("Was not able to get the hash value for the git commit message. ")
 	}
 
+	// Store the datestamp
+	if time[1] == "" {
+		fmt.Println(message)
+		panic("Was not able to get the date/time value for the git commit message. ")
+	}
 
 	is_merge := mer1Tag.MatchString(message)
 
@@ -70,8 +85,14 @@ func main(){
 		if message == "" {
 			panic("Commit message is empty.")
 		} else  {
-			fmt.Println("SUCCESS:", hash[1])
-			fmt.Println(message)
+			// fmt.Println("SUCCESS:", hash[1])
+			// fmt.Println(message)
+			res := &response{
+				Commit: hash[1],
+				Date: time[1],
+				Message: message}
+			resJson, _ := json.Marshal(res)
+			fmt.Println(string(resJson))
 		}
 	}
 }
