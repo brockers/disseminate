@@ -25,7 +25,7 @@ type Packagejson struct {
 	Main        string `json:"main"`
 	Author      string `json:"author"`
 	License     string `json:"license"`
-	Private     string `json:"private"`
+	Private     bool `json:"private"`
 }
 
 
@@ -35,12 +35,15 @@ func check(e error) {
 	}
 }
 
-func getPackage() []Packagejson {
-	raw, err := ioutil.ReadFile("./package.json")
+func getPackage() Packagejson {
+	raw, err := ioutil.ReadFile("./package1.json")
 	check(err)
 
-	var c []Packagejson
+
+	var c Packagejson
 	json.Unmarshal(raw, &c)
+
+	fmt.Println(c)
 	return c
 }
 
@@ -60,6 +63,7 @@ func main(){
 	// Message )onditions
 	var maxLenth int = 280
 	var minLenth int = 30
+	var is_noMerge bool = false
 
 	// var number string
 	var message string
@@ -88,10 +92,12 @@ func main(){
 	numbPtr := flag.Int("count", 1, "Number of previous commit messages to return.")
 	maxLenthPtr := flag.Int("max", maxLenth, "Maximum allowable length of the commit message.")
 	minLenthPtr := flag.Int("min", minLenth, "Minimum allowable length of the commit message.")
+	is_noMergePtr := flag.Bool("nomerge", is_noMerge, "Include non-merge commits in results.")
 	flag.Parse()
 
 	maxLenth = *maxLenthPtr
 	minLenth = *minLenthPtr
+	is_noMerge = *is_noMergePtr
 
 	// exec.Command requires a single string for third arg.  Combine strings
 	s := []string{ "git log -n", strconv.Itoa(*numbPtr) }
@@ -128,9 +134,9 @@ func main(){
 		panic("Was not able to get the date/time value for the git commit message. ")
 	}
 
-	is_merge := mer1Tag.MatchString(message)
+	has_merge := mer1Tag.MatchString(message)
 
-	if ! is_merge {
+	if ! has_merge && ! is_noMerge {
 		p("ERROR: Last commit was not a merge")
 		os.Exit(1)
 	} else {
@@ -173,10 +179,11 @@ func main(){
 	//
 	// x := new(Packagejson)
 	// dec := json.NewDecoder(dat).Decode(x)
+	p("============ PRINT FROM JSON DOCK ======================")
 	pkgs := getPackage()
-	for _, p := range pkgs {
-		fmt.Println(p.toString())
-	}
+	// for _, p := range pkgs {
+		fmt.Println(pkgs.toString())
+	// }
 
 	// fmt.Print(string(dat))
 	// fmt.Print(len(dat))

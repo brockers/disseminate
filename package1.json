@@ -1,0 +1,9 @@
+{
+  "name": "anvil",
+  "version": "0.1.5",
+  "description": "BlueForge Web Interface",
+  "main": "index.js",
+  "author": "Automation Integrated <developers@ai-sys.com>",
+  "license": "See AI-Lic",
+  "private": true,
+}
