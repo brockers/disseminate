@@ -11,10 +11,20 @@ import "strconv"
 import "encoding/json"
 
 type response struct {
-		Commit  string `json:"commit"`
-		Message string `json:"message"`
-		Date    string `json:"timestamp"`
-		Time    string `json:"buildtime"`
+	Commit  string `json:"commit"`
+	Message string `json:"message"`
+	Date    string `json:"timestamp"`
+	Time    string `json:"buildtime"`
+}
+
+type packagejson struct {
+  Name string `json:"name"`,
+	Version string  `json:"version"`,
+  Description string `json:"description"`,
+  Main string `json:"main"`,
+  Author string `json:"author"`,
+  License string `json:"license"`,
+  Private string `json:"private"`
 }
 
 func main(){

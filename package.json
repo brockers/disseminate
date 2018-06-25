@@ -1,0 +1,89 @@
+{
+  "name": "anvil",
+  "version": "0.1.5",
+  "description": "BlueForge Web Interface",
+  "main": "index.js",
+  "author": "Automation Integrated <developers@ai-sys.com>",
+  "license": "See AI-Lic",
+  "private": true,
+  "ai_disseminate": {
+    "product": "BlueForge.us",
+    "website": "https://www.blueforge.us"
+  },
+  "scripts": {
+    "start": "./scripts/start",
+    "serve": "node server/index.js",
+    "api": "node server/api/info",
+    "debug": "DEBUG=express:* node server",
+    "devel": "DEBUG=express:* nodemon -e js,json,css,html server/index.js",
+    "prod:export": "export $(cat /etc/anvil/anvil.conf |xargs)",
+    "test": "npm run test:e2e && npm run test:unit && npm run test:bash",
+    "build": "./scripts/build --current",
+    "build:partials": "npm-html2js -i './client/partials/**/*.html' -o ./client/stage/js/templates.js -b './client/partials' -m 'anvil.templates' --minify",
+    "make": "yarn --prod && node ./scripts/minify.js",
+    "env": "env",
+    "hooks": "./scripts/hooks/hook-setup",
+    "lint": "npm run lint:client && npm run lint:server && npm run lint:e2e",
+    "lint:server": "node ./scripts/lint server 'server/**/*.js' -m",
+    "lint:client": "node ./scripts/lint client 'client/js/app*.js' -m",
+    "lint:e2e": "node ./scripts/lint server 'test/client/e2e/**/*.js' -m",
+    "db:views:replicate": "node ./scripts/replicate_views.js",
+    "db:views:destroy": "node ./scripts/destroy_views.js",
+    "gliff": "node ./scripts/gliff_pointer_builder.js",
+    "gliff:quiet": "node ./scripts/gliff_pointer_builder.js -q",
+    "grep:clean": "rm -rf coverage/ client/stage/ temp/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AutomationIntegrated/anvil"
+  },
+  "bugs": {
+    "url": "https://github.com/AutomationIntegrated/anvil/issues"
+  },
+  "dependencies": {
+    "ai-couchbuilder": "http://npm.gliff.me/node/ai-couchbuilder-1.0.22.tgz",
+    "angular": "1.5.8",
+    "angular-animate": "1.5.8",
+    "angular-cache": "4.6.0",
+    "angular-cookies": "1.6.2",
+    "angular-inview": "2.1.0",
+    "ng-file-upload": "^12.2.13",
+    "nodemailer": "^2.6.0",
+    "nvd3": "^1.8.4",
+    "path": "^0.11.14",
+    "pouchdb": "^6.4.3",
+    "qano": "^0.1.0",
+    "qrcode": "^1.2.0",
+    "request": "^2.85.0",
+    "request-promise-any": "^1.0.3",
+    "shelljs": "^0.8.1",
+    "uglify-js": "^3.3.13"
+  },
+  "devDependencies": {
+    "angular-mocks": "1.5.8",
+    "chai": "^3.5.0",
+    "couchapp": "^0.11.0",
+    "istanbul": "^0.4.5",
+    "npm-html2js": "^0.1.8",
+    "nyc": "^11.4.1",
+    "protractor": "^5.3.0",
+    "proxyquire": "^1.8.0",
+    "q": "^1.5.1",
+    "restify": "^6.3.4",
+    "selenium-webdriver": "^4.0.0-alpha.1",
+    "sinon": "^4.3.0",
+    "spdy": "^3.4.7",
+    "supertest": "^3.0.0",
+    "underscore": "^1.8.3",
+    "yargs": "^6.6.0"
+  },
+  "nyc": {
+    "exclude": [
+      "tests"
+    ],
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  }
+}
