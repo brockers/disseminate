@@ -9,6 +9,7 @@ import "regexp"
 import "strings"
 import "strconv"
 import "encoding/json"
+import "io/ioutil"
 
 type response struct {
 	Commit  string `json:"commit"`
@@ -17,19 +18,46 @@ type response struct {
 	Time    string `json:"buildtime"`
 }
 
-type packagejson struct {
-  Name string `json:"name"`,
-	Version string  `json:"version"`,
-  Description string `json:"description"`,
-  Main string `json:"main"`,
-  Author string `json:"author"`,
-  License string `json:"license"`,
-  Private string `json:"private"`
+type Packagejson struct {
+	Name        string `json:"name"`
+	Version     string `json:"version"`
+	Description string `json:"description"`
+	Main        string `json:"main"`
+	Author      string `json:"author"`
+	License     string `json:"license"`
+	Private     string `json:"private"`
+}
+
+
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func getPackage() []Packagejson {
+	raw, err := ioutil.ReadFile("./package.json")
+	check(err)
+
+	var c []Packagejson
+	json.Unmarshal(raw, &c)
+	return c
+}
+
+func (p Packagejson) toString() string {
+	return toJson(p)
+}
+
+func toJson(p interface{}) string {
+	bytes, err := json.Marshal(p)
+	check(err)
+
+	return string(bytes)
 }
 
 func main(){
 
-	// Message conditions
+	// Message )onditions
 	var maxLenth int = 280
 	var minLenth int = 30
 
@@ -138,4 +166,18 @@ func main(){
 			p(string(resJson))
 		}
 	}
+
+	// Lets try reading from a file
+	// dat, err := ioutil.ReadFile("./package.json")
+	// check(err)
+	//
+	// x := new(Packagejson)
+	// dec := json.NewDecoder(dat).Decode(x)
+	pkgs := getPackage()
+	for _, p := range pkgs {
+		fmt.Println(p.toString())
+	}
+
+	// fmt.Print(string(dat))
+	// fmt.Print(len(dat))
 }
