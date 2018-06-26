@@ -74,6 +74,7 @@ func main(){
 	var maxLenth int = 280
 	var minLenth int = 30
 	var is_noMerge bool = false
+	var is_print bool = false
 
 	// var number string
 	var message string
@@ -104,11 +105,13 @@ func main(){
 	maxLenthPtr := flag.Int("max", maxLenth, "Maximum allowable length of the commit message.")
 	minLenthPtr := flag.Int("min", minLenth, "Minimum allowable length of the commit message.")
 	is_noMergePtr := flag.Bool("nomerge", is_noMerge, "Include non-merge commits in results.")
+	is_printPtr := flag.Bool("print", is_print, "Print output to terminal instead of to a file.")
 	flag.Parse()
 
 	maxLenth = *maxLenthPtr
 	minLenth = *minLenthPtr
 	is_noMerge = *is_noMergePtr
+	is_print = *is_printPtr
 
 	// Get out package information
 	pkgs := getPackage()
@@ -118,7 +121,7 @@ func main(){
 
 	gitlogCmd := exec.Command("bash", "-c", strings.Join(s, "  "))
 	gitlogOut, err := gitlogCmd.CombinedOutput()
-	check(err, gitlogOut)
+	check(err, string(gitlogOut))
 
 	message = string(gitlogOut)
 	// First test is if the most recent update actually has a merge message
@@ -132,21 +135,17 @@ func main(){
 	// Store the message as a hash document
 	if hash[1] == "" {
 		warn("Was not able to get the hash value for the git commit message. ")
-		p(message)
-		panic()
 	}
 
 	// Store the datestamp
 	if commitTime[1] == "" {
-		p(message)
-		panic("Was not able to get the date/time value for the git commit message. ")
+		warn("Was not able to get the date/time value for the git commit message. ")
 	}
 
 	has_merge := mer1Tag.MatchString(message)
 
 	if ! has_merge && ! is_noMerge {
-		p("ERROR: Last commit was not a merge")
-		os.Exit(1)
+		warn("Last commit was not a merge")
 	} else {
 
 		// Now we remove the author, date, and commit from the message
@@ -159,26 +158,33 @@ func main(){
 
 		// Message tests, to make sure they have a certain "quality"
 		if message == "" {
-			p("ERROR: Commit message is empty.")
-			os.Exit(1)
+			warn("Commit message is empty.")
 		} else if len(message) <= minLenth {
-			p("ERROR: Commit message does not meet minimum allowable length.")
-			os.Exit(1)
+			warn("Commit message does not meet minimum allowable length.")
 		} else if len(message) >= maxLenth {
-			p("ERROR: Commit message exceeds the maximum allowable length.")
-			os.Exit(1)
+			warn("Commit message exceeds the maximum allowable length.")
 		} else  {
-			// p("SUCCESS:", hash[1])
-			// p(message)
-			// timestamp, _ := now.MarshalJSON()
 			res := &response{
 				Commit: hash[1],
 				Date: commitTime[1],
 				Time: strings.Join(timestamp, ""),
 				Message: message,
-			 	Disseminate: pkgs.Disseminate}
+				Disseminate: pkgs.Disseminate}
 			resJson, _ := json.Marshal(res)
-			p(string(resJson))
+
+			// Print or write.
+			if is_print {
+				p(string(resJson))
+			} else {
+				f, err := os.Create("./disseminate.json")
+    		check(err, "Unable to open file disseminate.json")
+    		defer f.Close()
+
+    		msg, err := f.WriteString(string(resJson))
+    		check(err, "Unable to write to disseminate.json")
+    		f.Sync()
+    		p("disseminate.json update", msg)
+			}
 		}
 	}
 
