@@ -31,7 +31,7 @@ type PackageJSON struct {
 	Author      string `json:"author"`
 	License     string `json:"license"`
 	Private     bool   `json:"private"`
-	Disseminate PackageDisseminate `json:"ai_disseminate"`
+	Disseminate PackageDisseminate `json:"disseminate"`
 }
 
 
@@ -40,6 +40,11 @@ func check(e error, s string) {
 		fmt.Println(s)
 		panic(e)
 	}
+}
+
+func warn(s string){
+	fmt.Println("ERROR:", s)
+	os.Exit(1)
 }
 
 func getPackage() PackageJSON {
@@ -113,19 +118,12 @@ func main(){
 
 	gitlogCmd := exec.Command("bash", "-c", strings.Join(s, "  "))
 	gitlogOut, err := gitlogCmd.CombinedOutput()
-
-	if err != nil {
-		// log := spew.Sdump(gitlogCmd)
-		// p("ERROR:", log)
-		p("ERROR", gitlogOut)
-		panic(err)
-	}
+	check(err, gitlogOut)
 
 	message = string(gitlogOut)
 	// First test is if the most recent update actually has a merge message
 	if message == "" {
-		p("ERROR: No message was obtained from git log")
-		os.Exit(1)
+		warn("ERROR: No message was obtained from git log")
 	}
 
 	hash = commTag.FindStringSubmatch(message)
@@ -133,8 +131,9 @@ func main(){
 
 	// Store the message as a hash document
 	if hash[1] == "" {
+		warn("Was not able to get the hash value for the git commit message. ")
 		p(message)
-		panic("Was not able to get the hash value for the git commit message. ")
+		panic()
 	}
 
 	// Store the datestamp

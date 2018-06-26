@@ -6,7 +6,7 @@
   "author": "Automation Integrated <developers@ai-sys.com>",
   "license": "See AI-Lic",
   "private": true,
-  "ai_disseminate": {
+  "disseminate": {
     "product": "BlueForge.us",
     "website": "https://www.blueforge.us"
   },
