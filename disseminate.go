@@ -115,6 +115,9 @@ func main(){
 
 	// Get out package information
 	pkgs := getPackage()
+	if pkgs.Disseminate == (PackageDisseminate{}) {
+		warn("No disseminate tag in package.json")
+	}
 
 	// exec.Command requires a single string for third arg.  Combine strings
 	s := []string{ "git log -n", strconv.Itoa(*numbPtr) }
@@ -126,7 +129,7 @@ func main(){
 	message = string(gitlogOut)
 	// First test is if the most recent update actually has a merge message
 	if message == "" {
-		warn("ERROR: No message was obtained from git log")
+		warn("No message was obtained from git log")
 	}
 
 	hash = commTag.FindStringSubmatch(message)
@@ -176,14 +179,16 @@ func main(){
 			if is_print {
 				p(string(resJson))
 			} else {
-				f, err := os.Create("./disseminate.json")
-    		check(err, "Unable to open file disseminate.json")
-    		defer f.Close()
-
-    		msg, err := f.WriteString(string(resJson))
-    		check(err, "Unable to write to disseminate.json")
-    		f.Sync()
-    		p("disseminate.json update", msg)
+				err = ioutil.WriteFile("./disseminate.json", resJson, 0644)
+				check(err, "Unable to write to file disseminate.json")
+				// f, err := os.Create("./disseminate.json")
+    		// check(err, "Unable to open file disseminate.json")
+    		// defer f.Close()
+        //
+    		// msg, err := f.WriteString(string(resJson))
+    		// check(err, "Unable to write to disseminate.json")
+    		// f.Sync()
+    		// p("disseminate.json update", msg)
 			}
 		}
 	}
