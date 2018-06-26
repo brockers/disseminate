@@ -25,7 +25,7 @@ type Packagejson struct {
 	Main        string `json:"main"`
 	Author      string `json:"author"`
 	License     string `json:"license"`
-	Private     bool `json:"private"`
+	Private     bool   `json:"private"`
 }
 
 

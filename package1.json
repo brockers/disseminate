@@ -5,5 +5,5 @@
   "main": "index.js",
   "author": "Automation Integrated <developers@ai-sys.com>",
   "license": "See AI-Lic",
-  "private": true,
+  "private": true
 }
