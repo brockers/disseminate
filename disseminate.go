@@ -181,29 +181,8 @@ func main(){
 			} else {
 				err = ioutil.WriteFile("./disseminate.json", resJson, 0644)
 				check(err, "Unable to write to file disseminate.json")
-				// f, err := os.Create("./disseminate.json")
-    		// check(err, "Unable to open file disseminate.json")
-    		// defer f.Close()
-        //
-    		// msg, err := f.WriteString(string(resJson))
-    		// check(err, "Unable to write to disseminate.json")
-    		// f.Sync()
-    		// p("disseminate.json update", msg)
+				p("disseminate.json update")
 			}
 		}
 	}
-
-	// Lets try reading from a file
-	// dat, err := ioutil.ReadFile("./package.json")
-	// check(err)
-	//
-	// x := new(PackageJSON)
-	// dec := json.NewDecoder(dat).Decode(x)
-	// p("============ PRINT FROM JSON DOCK ======================")
-	// for _, p := range pkgs {
-		// fmt.Println(pkgs.Disseminate.toString())
-	// }
-
-	// fmt.Print(string(dat))
-	// fmt.Print(len(dat))
 }
