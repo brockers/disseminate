@@ -16,44 +16,49 @@ type response struct {
 	Message string `json:"message"`
 	Date    string `json:"timestamp"`
 	Time    string `json:"buildtime"`
+	Disseminate PackageDisseminate `json:"package"`
 }
 
-type Packagejson struct {
+type PackageDisseminate struct {
+	Product string `json:"product"`
+	Website string `json:"website"`
+}
+
+type PackageJSON struct {
 	Name        string `json:"name"`
 	Version     string `json:"version"`
 	Description string `json:"description"`
-	Main        string `json:"main"`
 	Author      string `json:"author"`
 	License     string `json:"license"`
 	Private     bool   `json:"private"`
+	Disseminate PackageDisseminate `json:"ai_disseminate"`
 }
 
 
-func check(e error) {
+func check(e error, s string) {
 	if e != nil {
+		fmt.Println(s)
 		panic(e)
 	}
 }
 
-func getPackage() Packagejson {
-	raw, err := ioutil.ReadFile("./package1.json")
-	check(err)
+func getPackage() PackageJSON {
+	raw, err := ioutil.ReadFile("./package.json")
+	check(err,"Unable to open package.json")
 
-
-	var c Packagejson
+	var c PackageJSON
 	json.Unmarshal(raw, &c)
 
-	fmt.Println(c)
 	return c
 }
 
-func (p Packagejson) toString() string {
+func (p PackageDisseminate) toString() string {
 	return toJson(p)
 }
 
 func toJson(p interface{}) string {
 	bytes, err := json.Marshal(p)
-	check(err)
+	check(err, "Failed to decide json document.")
 
 	return string(bytes)
 }
@@ -88,6 +93,7 @@ func main(){
 
 	// Less simpler printing
 	p := fmt.Println
+
 	// wordPtr := flag.String("filter", "merge", "a string")
 	numbPtr := flag.Int("count", 1, "Number of previous commit messages to return.")
 	maxLenthPtr := flag.Int("max", maxLenth, "Maximum allowable length of the commit message.")
@@ -98,6 +104,9 @@ func main(){
 	maxLenth = *maxLenthPtr
 	minLenth = *minLenthPtr
 	is_noMerge = *is_noMergePtr
+
+	// Get out package information
+	pkgs := getPackage()
 
 	// exec.Command requires a single string for third arg.  Combine strings
 	s := []string{ "git log -n", strconv.Itoa(*numbPtr) }
@@ -167,7 +176,8 @@ func main(){
 				Commit: hash[1],
 				Date: commitTime[1],
 				Time: strings.Join(timestamp, ""),
-				Message: message}
+				Message: message,
+			 	Disseminate: pkgs.Disseminate}
 			resJson, _ := json.Marshal(res)
 			p(string(resJson))
 		}
@@ -177,12 +187,11 @@ func main(){
 	// dat, err := ioutil.ReadFile("./package.json")
 	// check(err)
 	//
-	// x := new(Packagejson)
+	// x := new(PackageJSON)
 	// dec := json.NewDecoder(dat).Decode(x)
-	p("============ PRINT FROM JSON DOCK ======================")
-	pkgs := getPackage()
+	// p("============ PRINT FROM JSON DOCK ======================")
 	// for _, p := range pkgs {
-		fmt.Println(pkgs.toString())
+		// fmt.Println(pkgs.Disseminate.toString())
 	// }
 
 	// fmt.Print(string(dat))
