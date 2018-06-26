@@ -150,6 +150,7 @@ func main(){
 	var is_noMerge bool = false
 	var is_print bool = false
 	var configFile string = "./package.json"
+	var saveFile string = "./disseminate.json"
 
 	// var number string
 	var message string
@@ -171,16 +172,15 @@ func main(){
 	// wordPtr := flag.String("filter", "merge", "a string")
 	numbPtr := flag.Int("count", 1, "Number of previous commit messages to return.")
 	maxLenthPtr := flag.Int("max", maxLenth, "Maximum allowable length of the commit message.")
+	maxLenth = *maxLenthPtr
 	minLenthPtr := flag.Int("min", minLenth, "Minimum allowable length of the commit message.")
+	minLenth = *minLenthPtr
 	is_noMergePtr := flag.Bool("nomerge", is_noMerge, "Include non-merge commits in results.")
 	is_printPtr := flag.Bool("print", is_print, "Print output to terminal instead of to a file.")
-	configFilePtr := flag.String("config", configFile, "Disseminate configuration file in JSON format.")
-	flag.Parse()
-
-	maxLenth = *maxLenthPtr
-	minLenth = *minLenthPtr
-	// is_noMerge = *is_noMergePtr
 	is_print = *is_printPtr
+	configFilePtr := flag.String("config", configFile, "Disseminate configuration file in JSON format.")
+	saveFilePtr := flag.String("save", saveFile, "Save output to a file.  Cannot be used with -print.")
+	flag.Parse()
 
 	// Get out package information
 	pkgs := getPackage(*configFilePtr)
@@ -221,9 +221,9 @@ func main(){
 		if is_print {
 			p(string(resJson))
 		} else {
-			err := ioutil.WriteFile("./disseminate.json", resJson, 0644)
-			check(err, "Unable to write to file disseminate.json")
-			p("disseminate.json update")
+			err := ioutil.WriteFile(*saveFilePtr, resJson, 0644)
+			check(err, "Unable to write to save file")
+			p((*saveFilePtr), "has been updated")
 		}
 	}
 }
