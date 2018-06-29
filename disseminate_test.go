@@ -2,19 +2,19 @@ package main
 
 import "testing"
 
-func Testwarn(t *testing.T){
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("The warn function did not panic")
-		}
-	}()
-	// Check out warn and see if it runs
-	warn("Error message on panic.")
-	// Output:
-	// ERROR: Error message on panic.
-}
+// func TestWarn(t *testing.T){
+// 	defer func() {
+// 		if r := recover(); r == nil {
+// 			t.Errorf("The warn function did not panic")
+// 		}
+// 	}()
+// 	// Check out warn and see if it runs
+// 	warn("Error message on panic.")
+// 	// Output:
+// 	// ERROR: Error message on panic.
+// }
 
-func TestgetHashString(t *testing.T) {
+func TestGetHashString(t *testing.T) {
 
 	cases := []struct{
 		in, want string
