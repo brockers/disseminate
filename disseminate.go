@@ -63,6 +63,10 @@ func getPackage(f string) PackageJSON {
 	var c PackageJSON
 	json.Unmarshal(raw, &c)
 
+	if c == (PackageJSON{}) {
+		warn("Bad JSON document or non-npm style json file type.")
+	}
+
 	if c.Disseminate == (PackageDisseminate{}) {
 		warn("No disseminate tag in configuration file. { disseminate: {} } is required.")
 	}
