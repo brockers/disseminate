@@ -51,7 +51,7 @@ func check(e error, s string) {
 
 // No panic but we want a exit with a message
 func warn(s string){
-	fmt.Println("ERROR:", s)
+	fmt.Fprintf(os.Stderr, "ERROR: %v\n", s)
 	os.Exit(1)
 }
 

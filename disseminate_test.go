@@ -4,11 +4,14 @@ import "testing"
 import "errors"
 import "os"
 import "os/exec"
+// import "strings"
+import "fmt"
+import "io/ioutil"
 
 func TestCheck(t *testing.T){
 
 	var err error
-	check(err, "No messsage should print")
+	check(err, "No Check Error Message should print")
 
 	defer func() {
 		if r := recover(); r == nil {
@@ -19,26 +22,36 @@ func TestCheck(t *testing.T){
 
 	err = errors.New("Something bad happened")
 	// Check out warn and see if it runs
-	check(err, "Error message on panic.")
+	check(err, "Check Error Message")
 }
 
 func TestWarn(t *testing.T){
 	if os.Getenv("LOTS_OF_CRASHES") == "1" {
 		// Check out warn and see if it runs
-		warn("Error message on panic.")
+		fmt.Println("Run Lots of Crashes")
+		warn("Panic Error Message")
+		return
 	}
 
 	cmd := exec.Command(os.Args[0], "-test.run=TestWarn")
 	cmd.Env = append(os.Environ(), "LOTS_OF_CRASHES=1")
 	stdout, _ := cmd.StderrPipe()
-	if err := cmd.Start; err != nil {
-		t.Errorf("Code id not panic")
+	if err := cmd.Start(); err != nil {
+		t.Fatal(err)
 	}
 
-  got := string(stdout)
-  expected := "ERROR: Error message on panic."
-  if !strings.HasSuffix(got[:len(got)-1], expected) {
-    t.Fatalf("Unexpected warn message. Got %s but should contain %s", got[:len(got)-1], expected)
+	// Check Exit Message
+	gotBytes, _ := ioutil.ReadAll(stdout)
+  got := string(gotBytes)
+  expected := "ERROR: Panic Error Message\n"
+  if got != expected {
+  	t.Fatalf("Unexpected warn message. Got %s but should contain %s", got[:len(got)-1], expected)
+  }
+
+	// Check Exit status
+  err := cmd.Wait()
+  if e, ok := err.(*exec.ExitError); !ok || e.Success() {
+    t.Fatalf("Process ran with err %v, want exit status 1", err)
   }
 }
 
