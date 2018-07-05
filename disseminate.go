@@ -1,15 +1,16 @@
 package main
 
 import "os"
+import "os/exec"
 import "flag"
 import "time"
-import "os/exec"
 import "fmt"
 import "regexp"
 import "strings"
 import "strconv"
 import "encoding/json"
 import "io/ioutil"
+import "github.com/dghubble/oauth1"
 
 // Regular Expression filters
 var authTag = regexp.MustCompile(`Author: .*\n`)
@@ -161,6 +162,15 @@ func main(){
 	var hash string
 	var commitTime string
 
+	// Setup OAuth1
+	config := oauth1.NewConfig("consumerKey", "consumerSecret")
+	token := oauth1.NewToken("token", "tokenSecret")
+
+	// httpClient will automatically authorize http.Request's
+	httpClient := config.Client(oauth1.NoContext, token)
+
+	path := "https://www.wordpress.com/wp-json/wp/v2/posts"
+
 	// Build our timestamp
 	now := time.Now()
 	timestamp := []string{
@@ -230,4 +240,9 @@ func main(){
 			p((*saveFilePtr), "has been updated")
 		}
 	}
+
+	resp, _ := httpClient.Get(path)
+	defer resp.Body.Close()
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Printf("Raw Response Body:\n%v\n", string(body))
 }
