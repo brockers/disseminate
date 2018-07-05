@@ -162,14 +162,19 @@ func main(){
 	var hash string
 	var commitTime string
 
+	// oAuth1 values
+	postClientKey := os.Getenv("D_OAUTH_CLIENT_KEY")
+	postClientSecret := os.Getenv("D_OAUTH_CLIENT_SECRET")
+	postToken := os.Getenv("D_OAUTH_TOKEN")
+	postTokenSecret := os.Getenv("D_OAUTH_TOKEN_SECRET")
+	postUrl := os.Getenv("D_POST_URL")
+
 	// Setup OAuth1
-	config := oauth1.NewConfig("consumerKey", "consumerSecret")
-	token := oauth1.NewToken("token", "tokenSecret")
+	config := oauth1.NewConfig(postClientKey,postClientSecret)
+	token := oauth1.NewToken(postToken,postTokenSecret)
 
 	// httpClient will automatically authorize http.Request's
 	httpClient := config.Client(oauth1.NoContext, token)
-
-	path := "https://www.wordpress.com/wp-json/wp/v2/posts"
 
 	// Build our timestamp
 	now := time.Now()
@@ -241,7 +246,7 @@ func main(){
 		}
 	}
 
-	resp, _ := httpClient.Get(path)
+	resp, _ := httpClient.Get(postUrl)
 	defer resp.Body.Close()
 	body, _ := ioutil.ReadAll(resp.Body)
 	fmt.Printf("Raw Response Body:\n%v\n", string(body))
