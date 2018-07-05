@@ -27,6 +27,13 @@ type response struct {
 	Disseminate PackageDisseminate `json:"package"`
 }
 
+type WpPost struct {
+	Title string `json:"title"`
+	Status string `json:"status"`
+	Catagory string `json:"categories"`
+	Content string `json:"content"`
+}
+
 type PackageDisseminate struct {
 	Product string `json:"product"`
 	Website string `json:"website"`
@@ -154,6 +161,7 @@ func main(){
 	var minLenth int = 30
 	var is_noMerge bool = false
 	var is_print bool = false
+	var is_post bool = false
 	var configFile string = "./package.json"
 	var saveFile string = "./disseminate.json"
 
@@ -191,15 +199,18 @@ func main(){
 	// wordPtr := flag.String("filter", "merge", "a string")
 	numbPtr := flag.Int("count", 1, "Number of previous commit messages to return.")
 	maxLenthPtr := flag.Int("max", maxLenth, "Maximum allowable length of the commit message.")
-	maxLenth = *maxLenthPtr
 	minLenthPtr := flag.Int("min", minLenth, "Minimum allowable length of the commit message.")
-	minLenth = *minLenthPtr
 	is_noMergePtr := flag.Bool("nomerge", is_noMerge, "Include non-merge commits in results.")
 	is_printPtr := flag.Bool("print", is_print, "Print output to terminal instead of to a file.")
-	is_print = *is_printPtr
+	is_postPtr := flag.Bool("post", is_post, "Post to a RESTful Endpoint. You will need a number of ENV setup to do this.")
 	configFilePtr := flag.String("config", configFile, "Disseminate configuration file in JSON format.")
 	saveFilePtr := flag.String("save", saveFile, "Save output to a file.  Cannot be used with -print.")
 	flag.Parse()
+	// Reset our defaults to new imports
+	is_post = *is_postPtr
+	minLenth = *minLenthPtr
+	maxLenth = *maxLenthPtr
+	is_print = *is_printPtr
 
 	// Get out package information
 	pkgs := getPackage(*configFilePtr)
@@ -236,6 +247,23 @@ func main(){
 			Disseminate: pkgs.Disseminate}
 		resJson, _ := json.Marshal(res)
 
+		// Post to a RESTFUL API
+		if is_post {
+
+			post := &WpPost{
+				Title: "New Update to Something",
+				Status: "publish",
+				Catagory: "13",
+				Content: message}
+			postJson, _ := json.Marshal(post)
+
+			resp, _ := httpClient.Post(postUrl, "\"content_type\": \"application/json\"", strings.NewReader(string(postJson)))
+			defer resp.Body.Close()
+			body, _ := ioutil.ReadAll(resp.Body)
+			p(string(body))
+
+		}
+
 		// Print or write.
 		if is_print {
 			p(string(resJson))
@@ -246,8 +274,4 @@ func main(){
 		}
 	}
 
-	resp, _ := httpClient.Get(postUrl)
-	defer resp.Body.Close()
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Printf("Raw Response Body:\n%v\n", string(body))
 }
