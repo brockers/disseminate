@@ -19,7 +19,7 @@ var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
 
-type response struct {
+type Response struct {
 	Commit  string `json:"commit"`
 	Message string `json:"message"`
 	Date    string `json:"timestamp"`
@@ -30,8 +30,10 @@ type response struct {
 type WpPost struct {
 	Title string `json:"title"`
 	Status string `json:"status"`
-	Catagory string `json:"categories"`
+	Catagory int `json:"categories"`
 	Content string `json:"content"`
+	Comment string `json:"comment_status"`
+	Format string `json:"format"`
 }
 
 type PackageDisseminate struct {
@@ -156,14 +158,20 @@ func toJson(p interface{}) string {
 
 func main(){
 
-	// Message )onditions
+	// Message Conditions
 	var maxLenth int = 280
 	var minLenth int = 30
 	var is_noMerge bool = false
 	var is_print bool = false
-	var is_post bool = false
 	var configFile string = "./package.json"
 	var saveFile string = "./disseminate.json"
+
+	// Wordpress Post Options
+	var is_post bool = false
+	var wp_status string = "publish"
+	var wp_category int = 13
+	var wp_comment string = "closed"
+	var wp_format string = "standard"
 
 	// var number string
 	var message string
@@ -239,7 +247,7 @@ func main(){
 	} else if len(message) >= maxLenth {
 		warn("Commit message exceeds the maximum allowable length.")
 	} else  {
-		res := &response{
+		res := &Response{
 			Commit: hash,
 			Date: commitTime,
 			Time: strings.Join(timestamp, ""),
@@ -251,9 +259,11 @@ func main(){
 		if is_post {
 
 			post := &WpPost{
-				Title: "New Update to Something",
-				Status: "publish",
-				Catagory: "13",
+				Title: "New Update to " + pkgs.Disseminate.Product,
+				Status: wp_status,
+				Catagory:wp_category,
+				Comment: wp_comment,
+				Format: wp_format,
 				Content: message}
 			postJson, _ := json.Marshal(post)
 
