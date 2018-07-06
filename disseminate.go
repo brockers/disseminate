@@ -257,7 +257,7 @@ func main(){
 				Content: message}
 			postJson, _ := json.Marshal(post)
 
-			resp, _ := httpClient.Post(postUrl, "\"content_type\": \"application/json\"", strings.NewReader(string(postJson)))
+			resp, _ := httpClient.Post(postUrl,  "application/json", strings.NewReader(string(postJson)))
 			defer resp.Body.Close()
 			body, _ := ioutil.ReadAll(resp.Body)
 			p(string(body))
