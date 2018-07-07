@@ -56,6 +56,13 @@ func TestWarn(t *testing.T){
 }
 
 func TestGetPackage(t *testing.T){
+
+	got := getPackage("./test/package_good.json")
+
+	if got != (PackageJSON{}){
+		t.Fatalf("A valid package.json file was not unmarshaled")
+	}
+
 	defer func() {
 		if r := recover(); r == nil {
 			t.Errorf("Code id not panic")
@@ -65,6 +72,14 @@ func TestGetPackage(t *testing.T){
 
 	// Check that the package errors out if file does not exist
 	getPackage("/no/file/exits")
+
+	// Mock the standard warn function
+	warn = func(s string) {
+		panic("Bad JSON File, should not see this message")
+	}
+
+	getPackage("./test/package_bad.json")
+
 }
 
 // func TestGetHashString(t *testing.T) {

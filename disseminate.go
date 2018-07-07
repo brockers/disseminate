@@ -60,7 +60,8 @@ func check(e error, s string) {
 }
 
 // No panic but we want a exit with a message
-func warn(s string){
+// os.Exit is hard to test. By assigning it a var name I can mock it in tests
+var warn = func(s string) {
 	fmt.Fprintf(os.Stderr, "ERROR: %v\n", s)
 	os.Exit(1)
 }
