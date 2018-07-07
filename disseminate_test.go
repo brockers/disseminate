@@ -55,6 +55,18 @@ func TestWarn(t *testing.T){
   }
 }
 
+func TestGetPackage(t *testing.T){
+	defer func() {
+		if r := recover(); r == nil {
+			t.Errorf("Code id not panic")
+			// t.Errorf("The warn function did not panic")
+		}
+	}()
+
+	// Check that the package errors out if file does not exist
+	getPackage("/no/file/exits")
+}
+
 // func TestGetHashString(t *testing.T) {
 //
 // 	cases := []struct{

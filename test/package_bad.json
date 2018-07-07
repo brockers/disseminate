@@ -1,0 +1,9 @@
+{
+  "name": "test",
+  "version": "0.0.5",
+  "description": "Testing the test tester",
+  "main": "index.js",
+  "author": "Bobby Rockers <rrockers@gmail.com>",
+  "license": "GPL-2.0-only",
+  "private": false
+}
