@@ -63,41 +63,27 @@ func TestGetPackage(t *testing.T){
 		t.Fatalf("A valid package.json file was not unmarshaled")
 	}
 
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Code id not panic")
-			// t.Errorf("The warn function did not panic")
-		}
-	}()
-
-	// Check that the package errors out if file does not exist
-	getPackage("/no/file/exits")
-
-	// Mock the standard warn function
-	warn = func(s string) {
-		panic("Bad JSON File, should not see this message")
-	}
-
-	getPackage("./test/package_bad.json")
-
+	// TODO: Need to find a way to test our warn functions.
 }
 
-// func TestGetHashString(t *testing.T) {
-//
-// 	cases := []struct{
-// 		in, want string
-// 	}{
-// 		{ "commit a98d9e63902bad87b3d8", "a98d9e63902bad87b3d8" },
-// 		{ "commit XXX", "XXX" },
-// 	}
-//
-// 	for _, c := range cases {
-// 		got := getHashString(c.in)
-// 		if got != c.want {
-// 			t.Errorf("getHashString(%q) == %q, want %q", c.in, got, c.want)
-// 		}
-// 	}
-	// Output:
-	// a98d9e63902bad87b3d8
-	// XXX
+// func TestGetGitlogMeessage(t *testing.T){
+// 	TODO: getGitlogMessages Testing
 // }
+
+func TestGetHashString(t *testing.T) {
+
+	cases := []struct{
+		in, want string
+	}{
+		{ "commit a98d9e63902bad87b3d8", "a98d9e63902bad87b3d8" },
+		{ "commit XXX", "XXX" },
+	}
+
+	for _, c := range cases {
+		got := getHashString(c.in)
+		if got != c.want {
+			t.Errorf("getHashString(%q) == %q, want %q", c.in, got, c.want)
+		}
+	}
+}
+

@@ -2,7 +2,7 @@
   "name": "Disseminate",
   "version": "0.0.1",
   "description": "This is a testing Package.json file for Disseminate",
-  "main": "disseminate"
+  "main": "disseminate",
   "author": "Bob Rockers <rrockers@gmail.com>",
   "license": "GPL-2.0-only",
   "private": false,
