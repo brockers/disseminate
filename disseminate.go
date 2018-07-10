@@ -11,6 +11,8 @@ import "strconv"
 import "encoding/json"
 import "io/ioutil"
 import "github.com/dghubble/oauth1"
+import "gopkg.in/russross/blackfriday.v2"
+import "github.com/microcosm-cc/bluemonday"
 
 // Regular Expression filters
 var authTag = regexp.MustCompile(`Author: .*\n`)
@@ -18,7 +20,6 @@ var dateTag = regexp.MustCompile(`Date:\s+(.*)\n`)
 var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
-var tag_refImage = regexp.MustCompile(`(?i)\#image\s+(.*)\n`)
 
 type Response struct {
 	Commit  string `json:"commit"`
@@ -165,6 +166,7 @@ func main(){
 	var minLenth int = 30
 	var is_noMerge bool = false
 	var is_print bool = false
+	var is_markdown bool = false
 	var configFile string = "./package.json"
 	var saveFile string = "./disseminate.json"
 
@@ -213,6 +215,7 @@ func main(){
 	is_noMergePtr := flag.Bool("nomerge", is_noMerge, "Include non-merge commits in results.")
 	is_printPtr := flag.Bool("print", is_print, "Print output to terminal instead of to a file.")
 	is_postPtr := flag.Bool("post", is_post, "Post to a RESTful Endpoint. You will need a number of ENV setup to do this.")
+	is_markdownPtr := flag.Bool("markdown", is_markdown, "Support Markdown formatting in the gitlog message and convert to HTML for Wordpress.")
 	configFilePtr := flag.String("config", configFile, "Disseminate configuration file in JSON format.")
 	saveFilePtr := flag.String("save", saveFile, "Save output to a file.  Cannot be used with -print.")
 	flag.Parse()
@@ -221,6 +224,7 @@ func main(){
 	minLenth = *minLenthPtr
 	maxLenth = *maxLenthPtr
 	is_print = *is_printPtr
+	is_markdown = *is_markdownPtr
 
 	// Get out package information
 	pkgs := getPackage(*configFilePtr)
@@ -234,20 +238,20 @@ func main(){
 	// If we have  a merge requirement let us know
 	checkMergeRequirement(message, *is_noMergePtr)
 
-	// Get an image for out message
-	image := tag_refImage.FindStringSubmatch(message)
-
 	// Now we remove the author, date, and commit from the message
 	message = authTag.ReplaceAllString(message, "")
 	message = dateTag.ReplaceAllString(message, "")
 	message = commTag.ReplaceAllString(message, "")
 	message = mer1Tag.ReplaceAllString(message, "")
 	message = mer2Tag.ReplaceAllString(message, "")
-	// Looking for tags here
-	message = tag_refImage.ReplaceAllString(message, "")
 	message = strings.TrimSpace(message)
 
-
+	if is_markdown {
+		unsafe:= blackfriday.Run([]byte(message))
+		message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
+		p("====Configuring Markdown====")
+		p(message)
+	}
 
 	// Message tests, to make sure they have a certain "quality"
 	if message == "" {
@@ -287,7 +291,6 @@ func main(){
 		// Print or write.
 		if is_print {
 			p(string(resJson))
-			p("Is there a tagged image in this commit: ", image)
 		} else {
 			err := ioutil.WriteFile(*saveFilePtr, resJson, 0644)
 			check(err, "Unable to write to save file")
