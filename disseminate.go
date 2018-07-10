@@ -11,8 +11,9 @@ import "strconv"
 import "encoding/json"
 import "io/ioutil"
 import "github.com/dghubble/oauth1"
-import "gopkg.in/russross/blackfriday.v2"
-import "github.com/microcosm-cc/bluemonday"
+// import "gopkg.in/russross/blackfriday.v2"
+import "github.com/russross/blackfriday"
+// import "github.com/microcosm-cc/bluemonday"
 
 // Regular Expression filters
 var authTag = regexp.MustCompile(`Author: .*\n`)
@@ -247,8 +248,9 @@ func main(){
 	message = strings.TrimSpace(message)
 
 	if is_markdown {
-		unsafe:= blackfriday.Run([]byte(message))
-		message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
+		// unsafe := blackfriday.Run([]byte(message))
+		message = string(blackfriday.MarkdownCommon([]byte(message)))
+		// message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
 		p("====Configuring Markdown====")
 		p(message)
 	}
