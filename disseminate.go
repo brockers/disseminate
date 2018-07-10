@@ -249,7 +249,7 @@ func main(){
 
 	if is_markdown {
 		// unsafe := blackfriday.Run([]byte(message))
-		message = string(blackfriday.MarkdownCommon([]byte(message)))
+		message = string(blackfriday.MarkdownBasic([]byte(message)))
 		// message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
 		p("====Configuring Markdown====")
 		p(message)
