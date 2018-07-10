@@ -295,8 +295,8 @@ func main(){
 			check(err, "Unable to make a successful HTTP POST.")
 			p("Wordpress Post Successful")
 
-			// body, _ := ioutil.ReadAll(resp.Body)
-			// p(string(body))
+			body, _ := ioutil.ReadAll(resp.Body)
+			p(string(body))
 
 		}
 
