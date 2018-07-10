@@ -174,7 +174,7 @@ func main(){
 	// Wordpress Post Options
 	var is_post bool = false
 	var wp_status string = "publish"
-	var wp_category int = 13
+	var wp_category int = 11
 	var wp_comment string = "closed"
 	var wp_format string = "standard"
 
