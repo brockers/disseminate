@@ -11,8 +11,8 @@ import "strconv"
 import "encoding/json"
 import "io/ioutil"
 import "github.com/dghubble/oauth1"
-// import "gopkg.in/russross/blackfriday.v2"
-import "github.com/russross/blackfriday"
+import "gopkg.in/russross/blackfriday.v2"
+// import "github.com/russross/blackfriday"
 // import "github.com/microcosm-cc/bluemonday"
 
 // Regular Expression filters
@@ -249,7 +249,8 @@ func main(){
 
 	if is_markdown {
 		// unsafe := blackfriday.Run([]byte(message))
-		message = string(blackfriday.MarkdownBasic([]byte(message)))
+		// message = string(blackfriday.MarkdownBasic([]byte(message)))
+		message = string(blackfriday.Run([]byte(message), blackfriday.WithNoExtensions()))
 		// message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
 		p("====Configuring Markdown====")
 		p(message)
