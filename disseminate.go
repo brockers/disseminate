@@ -18,7 +18,7 @@ var dateTag = regexp.MustCompile(`Date:\s+(.*)\n`)
 var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
-var tag_refImage = regexp.MustCompile(`(?i)\#image .*\n`)
+var tag_refImage = regexp.MustCompile(`(?i)\#image\s+(.*)\n`)
 
 type Response struct {
 	Commit  string `json:"commit"`
