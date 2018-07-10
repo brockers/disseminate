@@ -18,6 +18,7 @@ var dateTag = regexp.MustCompile(`Date:\s+(.*)\n`)
 var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
+var tag_refImage = regexp.MustCompile(`(?i)\#image .*\n`)
 
 type Response struct {
 	Commit  string `json:"commit"`
@@ -225,6 +226,7 @@ func main(){
 	pkgs := getPackage(*configFilePtr)
 	// Get our package messages
 	message = getGitlogMessage(strconv.Itoa(*numbPtr))
+
 	// Hash values for uniq storage
 	hash = getHashString(message)
 	// Need different build and commit times
@@ -232,13 +234,20 @@ func main(){
 	// If we have  a merge requirement let us know
 	checkMergeRequirement(message, *is_noMergePtr)
 
+	// Get an image for out message
+	image := tag_refImage.FindStringSubmatch(message)
+
 	// Now we remove the author, date, and commit from the message
 	message = authTag.ReplaceAllString(message, "")
 	message = dateTag.ReplaceAllString(message, "")
 	message = commTag.ReplaceAllString(message, "")
 	message = mer1Tag.ReplaceAllString(message, "")
 	message = mer2Tag.ReplaceAllString(message, "")
+	// Looking for tags here
+	message = tag_refImage.ReplaceAllString(message, "")
 	message = strings.TrimSpace(message)
+
+
 
 	// Message tests, to make sure they have a certain "quality"
 	if message == "" {
@@ -278,6 +287,7 @@ func main(){
 		// Print or write.
 		if is_print {
 			p(string(resJson))
+			p("Is there a tagged image in this commit: ", image)
 		} else {
 			err := ioutil.WriteFile(*saveFilePtr, resJson, 0644)
 			check(err, "Unable to write to save file")

@@ -1,0 +1,31 @@
+{
+  "name": "Disseminate",
+  "version": "0.0.1",
+  "description": "This is a testing Package.json file for Disseminate",
+  "main": "disseminate",
+  "author": "Bob Rockers <rrockers@gmail.com>",
+  "license": "GPL-2.0-only",
+  "private": false,
+  "disseminate": {
+    "product": "Disseminate",
+    "website": "https://www.github.com/brockers/disseminate"
+  },
+  "scripts": {
+    "start": "disseminate",
+    "test": "go test",
+    "build": "go install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brockers/disseminate"
+  },
+  "bugs": {
+    "url": "https://github.com/brockers/disseminate/issues"
+  },
+  "dependencies": {
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {
+    "uglify-js": "^3.3.13"
+  }
+}
