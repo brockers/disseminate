@@ -21,6 +21,7 @@ var dateTag = regexp.MustCompile(`Date:\s+(.*)\n`)
 var mer1Tag = regexp.MustCompile(`Merge pull request .*\n`)
 var mer2Tag = regexp.MustCompile(`Merge: .*\n`)
 var commTag = regexp.MustCompile(`commit ([a-z0-9]*)\n`)
+var leadSpace = regexp.MustCompile(`(?m)^[\t ]{2,}`)
 
 type Response struct {
 	Commit  string `json:"commit"`
@@ -246,14 +247,17 @@ func main(){
 	message = mer1Tag.ReplaceAllString(message, "")
 	message = mer2Tag.ReplaceAllString(message, "")
 	message = strings.TrimSpace(message)
+	message = leadSpace.ReplaceAllString(message, "")
 
 	if is_markdown {
+		// p("====Before Markdown====")
+		// p(message)
 		// unsafe := blackfriday.Run([]byte(message))
 		// message = string(blackfriday.MarkdownBasic([]byte(message)))
 		message = string(blackfriday.Run([]byte(message), blackfriday.WithNoExtensions()))
 		// message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
-		p("====Configuring Markdown====")
-		p(message)
+		// p("====After Markdown====")
+		// p(message)
 	}
 
 	// Message tests, to make sure they have a certain "quality"
@@ -284,10 +288,15 @@ func main(){
 				Content: message}
 			postJson, _ := json.Marshal(post)
 
-			resp, _ := httpClient.Post(postUrl,  "application/json", strings.NewReader(string(postJson)))
+			resp, err := httpClient.Post(postUrl,  "application/json", strings.NewReader(string(postJson)))
 			defer resp.Body.Close()
-			body, _ := ioutil.ReadAll(resp.Body)
-			p(string(body))
+
+			// Check for bad post
+			check(err, "Unable to make a successful HTTP POST.")
+			p("Wordpress Post Successful")
+
+			// body, _ := ioutil.ReadAll(resp.Body)
+			// p(string(body))
 
 		}
 
