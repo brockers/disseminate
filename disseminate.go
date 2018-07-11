@@ -25,6 +25,7 @@ var leadSpace = regexp.MustCompile(`(?m)^[\t ]{2,}`)
 
 type Response struct {
 	Commit  string `json:"commit"`
+	Title   string `json:"title"`
 	Message string `json:"message"`
 	Date    string `json:"timestamp"`
 	Time    string `json:"buildtime"`
@@ -207,6 +208,12 @@ func main(){
 		strconv.Itoa(now.Hour()),
 		strconv.Itoa(now.Minute()) }
 
+	// Date to put in title
+	titleDate :=[]string{
+		strconv.Itoa(now.Day()),
+		fmt.Sprintf("%02d", int(now.Month())),
+		strconv.Itoa(now.Year()) }
+
 	// Less simpler printing
 	p := fmt.Println
 
@@ -250,14 +257,8 @@ func main(){
 	message = leadSpace.ReplaceAllString(message, "")
 
 	if is_markdown {
-		// p("====Before Markdown====")
-		// p(message)
-		// unsafe := blackfriday.Run([]byte(message))
-		// message = string(blackfriday.MarkdownBasic([]byte(message)))
+		// Convert Message from Markdown to HTML
 		message = string(blackfriday.Run([]byte(message), blackfriday.WithNoExtensions()))
-		// message = string(bluemonday.UGCPolicy().SanitizeBytes(unsafe))
-		// p("====After Markdown====")
-		// p(message)
 	}
 
 	// Message tests, to make sure they have a certain "quality"
@@ -268,8 +269,12 @@ func main(){
 	} else if len(message) >= maxLenth {
 		warn("Commit message exceeds the maximum allowable length.")
 	} else  {
+
+		title := strings.Join(titleDate, "/") + " Updates to " + pkgs.Disseminate.Product
+
 		res := &Response{
 			Commit: hash,
+			Title: title,
 			Date: commitTime,
 			Time: strings.Join(timestamp, ""),
 			Message: message,
@@ -280,7 +285,7 @@ func main(){
 		if is_post {
 
 			post := &WpPost{
-				Title: "New Update to " + pkgs.Disseminate.Product,
+				Title: title,
 				Status: wp_status,
 				Catagory:wp_category,
 				Comment: wp_comment,
