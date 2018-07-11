@@ -292,11 +292,14 @@ func main(){
 			defer resp.Body.Close()
 
 			// Check for bad post
-			check(err, "Unable to make a successful HTTP POST.")
-			p("Wordpress Post Successful")
+			check(err, "Unexpected Error with HTTP POST request")
 
-			body, _ := ioutil.ReadAll(resp.Body)
-			p(string(body))
+			if 	resp.StatusCode != 201 {
+				body, _ := ioutil.ReadAll(resp.Body)
+				warn(string(body))
+			} else {
+				p("Post Successful")
+			}
 
 		}
 
@@ -306,7 +309,7 @@ func main(){
 		} else {
 			err := ioutil.WriteFile(*saveFilePtr, resJson, 0644)
 			check(err, "Unable to write to save file")
-			p((*saveFilePtr), "has been updated")
+			p( "File been updated:", (*saveFilePtr) )
 		}
 	}
 
